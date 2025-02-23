@@ -1,11 +1,14 @@
 package islembrb.srsliveness;
 
 import ai.djl.Application;
+import ai.djl.Device;
 import ai.djl.MalformedModelException;
+import ai.djl.engine.Engine;
 import ai.djl.inference.Predictor;
 import ai.djl.modality.cv.Image;
 import ai.djl.modality.cv.ImageFactory;
 import ai.djl.modality.cv.output.DetectedObjects;
+import ai.djl.repository.Artifact;
 import ai.djl.repository.zoo.Criteria;
 import ai.djl.repository.zoo.ModelNotFoundException;
 import ai.djl.repository.zoo.ModelZoo;
@@ -18,6 +21,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 @Configuration
@@ -31,9 +36,9 @@ public class DjlConfig {
         return Criteria.builder()
                 .setTypes(Image.class, DetectedObjects.class)
                 .optApplication(Application.CV.OBJECT_DETECTION)
-                .optFilter("size", "300")
-                .optFilter("backbone", "resnet50")
-                .optFilter("dataset", "coco")
+                .optDevice(Device.gpu(0))
+                .optFilter("backbone", "mobilenet_v2")
+                .optFilter("dataset", "openimages_v4")
                 .optArgument("threshold", 0.1)
                 .build();
     }
@@ -42,11 +47,12 @@ public class DjlConfig {
     public ZooModel<Image, DetectedObjects> model(
             @Qualifier("criteria") Criteria<Image, DetectedObjects> criteria)
             throws MalformedModelException, ModelNotFoundException, IOException {
-//        Map<Application, List<Artifact>> applicationListMap = ModelZoo.listModels();
-//        applicationListMap.forEach((application, artifacts) -> {
-//            System.out.println(application + ":");
-//            artifacts.forEach(System.out::println);
-//        });
+        Map<Application, List<Artifact>> applicationListMap = ModelZoo.listModels();
+        applicationListMap.forEach((application, artifacts) -> {
+            System.out.println(application + ":");
+            artifacts.forEach(System.out::println);
+        });
+        Device.gpu().getDevices().forEach(System.out::println);
         return ModelZoo.loadModel(criteria);
     }
 

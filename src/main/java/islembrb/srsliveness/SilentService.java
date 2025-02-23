@@ -69,8 +69,11 @@ public class SilentService {
         Mat resizedFace = new Mat();
         resize(face, resizedFace, new Size(width, height));
         resizedFace.convertTo(resizedFace, org.bytedeco.opencv.global.opencv_core.CV_32F);
-        // Convert to float and normalize
-        resizedFace.convertTo(resizedFace, org.bytedeco.opencv.global.opencv_core.CV_32F);
+
+        // Ensure the image has 3 channels (RGB)
+        if (resizedFace.channels() != 3) {
+            throw new IllegalArgumentException("Input image must have 3 channels (RGB)");
+        }
 
         // Change layout from HWC to CHW
         float[] chwData = new float[(int) (resizedFace.total() * resizedFace.channels())];
@@ -87,7 +90,6 @@ public class SilentService {
         long[] shape = {1, resizedFace.channels(), resizedFace.rows(), resizedFace.cols()};
         return OnnxTensor.createTensor(env, FloatBuffer.wrap(chwData), shape);
     }
-
     private static class PredictionResult {
         boolean isReal;
         float score;
