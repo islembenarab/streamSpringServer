@@ -1,0 +1,50 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.graalvm.buildtools.native' version '0.10.4'
+}
+
+group = 'islembrb'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'com.corundumstudio.socketio:netty-socketio:2.0.12'
+    implementation 'org.bytedeco:javacv-platform:1.5.10'
+    implementation 'ai.djl.spring:djl-spring-boot-starter-pytorch-auto:0.26'
+    implementation 'ai.djl.spring:djl-spring-boot-starter-autoconfigure:0.26'
+    implementation 'ai.djl.onnxruntime:onnxruntime-engine:0.31.1'
+    implementation 'ai.djl:model-zoo:0.31.1'
+    implementation 'ai.djl.pytorch:pytorch-engine:0.31.1'
+    implementation 'ai.djl.pytorch:pytorch-model-zoo:0.31.1'
+    implementation 'ai.djl.tensorflow:tensorflow-model-zoo:0.31.1'
+    compileOnly 'org.projectlombok:lombok'
+//    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
