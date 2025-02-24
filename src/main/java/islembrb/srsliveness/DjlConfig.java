@@ -13,6 +13,7 @@ import ai.djl.repository.zoo.Criteria;
 import ai.djl.repository.zoo.ModelNotFoundException;
 import ai.djl.repository.zoo.ModelZoo;
 import ai.djl.repository.zoo.ZooModel;
+import ai.djl.util.Platform;
 import ai.onnxruntime.OrtException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -36,11 +37,12 @@ public class DjlConfig {
         return Criteria.builder()
                 .setTypes(Image.class, DetectedObjects.class)
                 .optApplication(Application.CV.OBJECT_DETECTION)
-                .optDevice(Device.gpu(0))
-                .optFilter("backbone", "mobilenet_v2")
-                .optFilter("dataset", "openimages_v4")
+                .optDevice(Device.gpu())
+                .optFilter("backbone", "resnet50")
+                .optFilter("dataset", "coco")
                 .optArgument("threshold", 0.1)
                 .build();
+
     }
 
     @Bean
@@ -52,13 +54,16 @@ public class DjlConfig {
             System.out.println(application + ":");
             artifacts.forEach(System.out::println);
         });
-        Device.gpu().getDevices().forEach(System.out::println);
+        Engine instance = Engine.getInstance();
+        System.out.println(instance.getGpuCount()
+        );
         return ModelZoo.loadModel(criteria);
     }
 
     @Bean(destroyMethod = "close")
     @Scope(value = "prototype", proxyMode = ScopedProxyMode.INTERFACES)
     public Predictor<Image, DetectedObjects> predictor(ZooModel<Image, DetectedObjects> model) {
+
         return model.newPredictor();
     }
 
@@ -69,6 +74,7 @@ public class DjlConfig {
      */
     @Bean
     public Supplier<Predictor<Image, DetectedObjects>> predictorProvider(ZooModel<Image, DetectedObjects> model) {
+
         return model::newPredictor;
     }
     @Bean
